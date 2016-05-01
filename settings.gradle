@@ -1,0 +1,11 @@
+rootProject.name = "powermock"
+
+include("reflect")
+include("core")
+
+addPrefix("reflect")
+addPrefix("core")
+
+def addPrefix (projectName){
+    project(":$projectName").name = rootProject.name + "-" + projectName;
+}
