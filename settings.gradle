@@ -2,10 +2,23 @@ rootProject.name = "powermock"
 
 include("reflect")
 include("core")
+include("api")
+include("api:support")
+include("api:easymock")
+include("api:mockito-common")
+include("api:mockito")
+include("api:mockito2")
 
-addPrefix("reflect")
-addPrefix("core")
+addPrefixToProjectName("reflect")
+addPrefixToProjectName("core")
+addPrefixToProjectName("api")
+addPrefixToProjectName("api:support")
+addPrefixToProjectName("api:easymock")
+addPrefixToProjectName("api:mockito-common")
+addPrefixToProjectName("api:mockito")
+addPrefixToProjectName("api:mockito2")
 
-def addPrefix (projectName){
-    project(":$projectName").name = rootProject.name + "-" + projectName;
+def addPrefixToProjectName(projectName){
+    def project = project(":$projectName")
+    project.name = project.parent.name + "-" + project.name;
 }

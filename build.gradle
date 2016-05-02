@@ -50,10 +50,15 @@ configure(allprojects) { project ->
             dependency("org.objenesis:objenesis:${objenesisVersion}")
             dependency("org.javassist:javassist:${javassistVersion}")
             dependency("org.assertj:assertj-core:${assertjVersion}")
-            dependency("org.hamcrest:hamcrest-core:${hamcrestVersion}")
+            dependency("org.easymock:easymock:${easymockVersion}"){
+                exclude group: 'cglib', module: 'cglib-nodep'
+            }
+            dependency("cglib:cglib-nodep:${cglibVersion}")
             dependency("junit:junit:${junitVersion}") {
                 exclude group: 'org.hamcrest', module: 'hamcrest-core'
+
             }
+            dependency("org.hamcrest:hamcrest-core:${hamcrestVersion}")
         }
     }
 
@@ -75,28 +80,55 @@ configure(allprojects) { project ->
     }
 
     configurations {
-        mockito1TestCompile.extendsFrom testCompile
-        mockito2TestCompile.extendsFrom testCompile
+        provided
+        mockito1
+        mockito2
     }
 
     sourceSets {
-        mockito1 {
-            java.srcDirs = ['src/test']
-            resources.srcDirs = ['src/test/resources']
-            output.resourcesDir = 'build/mockito1/classes/test'
-            output.classesDir   = 'build/mockito1/classes/test'
-            compileClasspath = sourceSets.main.output + configurations.mockito1TestCompile
-            runtimeClasspath = output + compileClasspath  + configurations.mockito1TestCompile
+        main {
+            compileClasspath = compileClasspath + configurations.provided
+        }
+        test {
+            compileClasspath = compileClasspath + configurations.provided
+        }
+        mainMockito1 {
+            java.srcDirs = ['src/main/java']
+            resources.srcDirs = ['src/main/resources']
+            output.resourcesDir = 'build/mockito1/classes/main'
+            output.classesDir   = 'build/mockito1/classes/main'
+            compileClasspath = sourceSets.main.compileClasspath + configurations.mockito1 + configurations.provided
+            runtimeClasspath = output + compileClasspath  + configurations.mockito1
             sourceCompatibility = 1.6
             targetCompatibility = 1.6
         }
-        mockito2 {
+        testMockito1 {
+            java.srcDirs = ['src/test/java']
+            resources.srcDirs = ['src/test/resources']
+            output.resourcesDir = 'build/mockito1/classes/test'
+            output.classesDir   = 'build/mockito1/classes/test'
+            compileClasspath = sourceSets.test.compileClasspath + configurations.mockito1 + configurations.provided
+            runtimeClasspath = output + compileClasspath  + configurations.mockito1
+            sourceCompatibility = 1.6
+            targetCompatibility = 1.6
+        }
+        mainMockito2 {
+            java.srcDirs = ['src/main/java']
+            resources.srcDirs = ['src/main/resources']
+            output.resourcesDir = 'build/mockito2/classes/main'
+            output.classesDir   = 'build/mockito2/classes/main'
+            compileClasspath = sourceSets.main.compileClasspath + configurations.mockito2 + configurations.provided
+            runtimeClasspath = output + compileClasspath  + configurations.mockito2
+            sourceCompatibility = 1.6
+            targetCompatibility = 1.6
+        }
+        testMockito2 {
             java.srcDirs = ['src/test']
             resources.srcDirs = ['src/test/resources']
             output.resourcesDir = 'build/mockito2/classes/test'
             output.classesDir   = 'build/mockito2/classes/test'
-            compileClasspath = sourceSets.main.output + configurations.mockito2TestCompile
-            runtimeClasspath = output + compileClasspath  + configurations.mockito1TestCompile
+            compileClasspath = sourceSets.test.compileClasspath + configurations.mockito2 + configurations.provided
+            runtimeClasspath = output + compileClasspath  + configurations.mockito2
             sourceCompatibility = 1.6
             targetCompatibility = 1.6
         }
@@ -105,8 +137,8 @@ configure(allprojects) { project ->
     task mockito1Test(type: Test) {
         description = 'Runs the test with Mockito 1'
         group = 'verification'
-        testClassesDir = sourceSets.mockito1.output.classesDir
-        classpath = sourceSets.mockito1.runtimeClasspath
+        testClassesDir = sourceSets.testMockito1.output.classesDir
+        classpath = sourceSets.testMockito1.runtimeClasspath
 
         testLogging {
             events "passed", "skipped", "failed"
@@ -126,8 +158,8 @@ configure(allprojects) { project ->
     task mockito2Test(type: Test) {
         description = 'Runs the test with Mockito 2'
         group = 'verification'
-        testClassesDir = sourceSets.mockito2.output.classesDir
-        classpath = sourceSets.mockito2.runtimeClasspath
+        testClassesDir = sourceSets.testMockito2.output.classesDir
+        classpath = sourceSets.testMockito2.runtimeClasspath
 
         testLogging {
             events "passed", "skipped", "failed"
@@ -192,18 +224,85 @@ project("powermock-core") {
         testCompile("junit:junit")
         testCompile("org.assertj:assertj-core")
         testCompile("org.hamcrest:hamcrest-core")
-        mockito1TestCompile("org.mockito:mockito-core:${mockito1Version}")
-        mockito2TestCompile("org.mockito:mockito-core:${mockito2Version}")
+        mockito1("org.mockito:mockito-core:${mockito1Version}")
+        mockito2("org.mockito:mockito-core:${mockito2Version}")
     }
 
     compileTestJava{
         enabled = false
     }
 
-    test{
-        dependsOn("mockito1Classes","mockito2Classes")
+    check.dependsOn testMockito1Classes,testMockito2Classes
+}
+
+project("powermock-api:powermock-api-support"){
+    description = "PowerMock API Utility classes."
+
+    dependencies {
+        compile(project(":powermock-reflect"))
+        compile(project(":powermock-core"))
+        testCompile("junit:junit")
+        testCompile("org.hamcrest:hamcrest-core")
+    }
+}
+
+project("powermock-api:powermock-api-easymock"){
+    description = "PowerMock API Utility classes."
+
+    dependencies {
+        compile(project(":powermock-api:powermock-api-support"))
+        compile("cglib:cglib-nodep")
+        provided("org.easymock:easymock")
+        testCompile("junit:junit")
+        testCompile("org.hamcrest:hamcrest-core")
+    }
+}
+
+project("powermock-api:powermock-api-mockito-common"){
+    description = "PowerMock API for Mockito. Common classes."
+
+    dependencies {
+        compile(project(":powermock-api:powermock-api-support"))
+        testCompile("junit:junit")
+        testCompile("org.assertj:assertj-core")
+        testCompile("org.hamcrest:hamcrest-core")
+        mockito1("org.mockito:mockito-core:${mockito1Version}")
+        mockito2("org.mockito:mockito-core:${mockito2Version}")
     }
 
-    check.dependsOn mockito1Test,mockito2Test
+    compileJava{
+        enabled = false
+    }
 
+    compileTestJava{
+        enabled = false
+    }
+
+    classes.dependsOn mainMockito1Classes,mainMockito2Classes
+
+    check.dependsOn testMockito1Classes,testMockito2Classes
+}
+
+project("powermock-api:powermock-api-mockito"){
+    description = "PowerMock API for Mockito 1.+.."
+
+    dependencies {
+        compile(project(":powermock-api:powermock-api-mockito-common"))
+        testCompile("junit:junit")
+        testCompile("org.assertj:assertj-core")
+        testCompile("org.hamcrest:hamcrest-core")
+        provided("org.mockito:mockito-core:${mockito1Version}")
+    }
+}
+
+project("powermock-api:powermock-api-mockito2"){
+    description = "PowerMock API for Mockito 2.+.."
+
+    dependencies {
+        compile(project(":powermock-api:powermock-api-mockito-common"))
+        testCompile("junit:junit")
+        testCompile("org.assertj:assertj-core")
+        testCompile("org.hamcrest:hamcrest-core")
+        provided("org.mockito:mockito-core:${mockito2Version}")
+    }
 }
