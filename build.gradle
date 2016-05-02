@@ -20,7 +20,7 @@ ext {
     testngVersion = "6.9.10"
     xstreamVersion = "1.4.9"
     mockito1Version = "1.10.19"
-    mockito2Version = "2.0.51-beta"
+    mockito2Version = "2.0.42-beta"
 
     ext.gradleScriptDir = "${rootProject.projectDir}/gradle"
 }
@@ -262,12 +262,15 @@ project("powermock-api:powermock-api-mockito-common"){
     description = "PowerMock API for Mockito. Common classes."
 
     dependencies {
-        compile(project(":powermock-api:powermock-api-support"))
         testCompile("junit:junit")
         testCompile("org.assertj:assertj-core")
         testCompile("org.hamcrest:hamcrest-core")
+
         mockito1("org.mockito:mockito-core:${mockito1Version}")
+        mockito1(project(":powermock-api:powermock-api-support"))
+
         mockito2("org.mockito:mockito-core:${mockito2Version}")
+        mockito2(project(":powermock-api:powermock-api-support"))
     }
 
     compileJava{
@@ -278,7 +281,22 @@ project("powermock-api:powermock-api-mockito-common"){
         enabled = false
     }
 
-    classes.dependsOn mainMockito1Classes,mainMockito2Classes
+    task mockito1Jar(type: Jar) {
+        baseName = project.name + "-mockito1"
+        dependsOn mainMockito1Classes
+        from sourceSets.mainMockito1.output
+    }
+
+    task mockito2Jar(type: Jar) {
+        baseName = project.name + "-mockito2"
+        dependsOn mainMockito2Classes
+        from sourceSets.mainMockito2.output
+    }
+
+    artifacts {
+        mockito1 mockito1Jar
+        mockito2 mockito2Jar
+    }
 
     check.dependsOn testMockito1Classes,testMockito2Classes
 }
@@ -287,7 +305,7 @@ project("powermock-api:powermock-api-mockito"){
     description = "PowerMock API for Mockito 1.+.."
 
     dependencies {
-        compile(project(":powermock-api:powermock-api-mockito-common"))
+        compile(project(path:":powermock-api:powermock-api-mockito-common", configuration: "mockito1"))
         testCompile("junit:junit")
         testCompile("org.assertj:assertj-core")
         testCompile("org.hamcrest:hamcrest-core")
@@ -299,7 +317,7 @@ project("powermock-api:powermock-api-mockito2"){
     description = "PowerMock API for Mockito 2.+.."
 
     dependencies {
-        compile(project(":powermock-api:powermock-api-mockito-common"))
+        compile(project(path:":powermock-api:powermock-api-mockito-common", configuration: "mockito2"))
         testCompile("junit:junit")
         testCompile("org.assertj:assertj-core")
         testCompile("org.hamcrest:hamcrest-core")
