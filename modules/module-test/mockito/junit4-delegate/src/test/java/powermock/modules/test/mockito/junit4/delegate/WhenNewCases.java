@@ -16,7 +16,11 @@
 package powermock.modules.test.mockito.junit4.delegate;
 
 import org.junit.Test;
+import org.junit.runner.RunWith;
+import org.mockito.runners.MockitoJUnitRunner;
 import org.powermock.core.classloader.annotations.PrepareForTest;
+import org.powermock.modules.junit4.PowerMockRunner;
+import org.powermock.modules.junit4.PowerMockRunnerDelegate;
 import org.powermock.reflect.Whitebox;
 import org.powermock.reflect.exceptions.ConstructorNotFoundException;
 import samples.Service;
@@ -42,6 +46,8 @@ import static org.powermock.api.support.membermodification.MemberMatcher.constru
  * Test class to demonstrate new instance mocking using whenConstructionOf(..).
  *
  */
+@RunWith(PowerMockRunner.class)
+@PowerMockRunnerDelegate(MockitoJUnitRunner.class)
 @PrepareForTest({MyClass.class, ExpectNewDemo.class, DataInputStream.class})
 public class WhenNewCases {
 
