@@ -8,17 +8,29 @@ include("api:easymock")
 include("api:mockito-common")
 include("api:mockito")
 include("api:mockito2")
+include("tests")
+include("tests:utils")
+include("classloading")
+include("classloading:classloading-base")
+include("classloading:classloading-objenesis")
+include("classloading:classloading-xstream")
 
-addPrefixToProjectName("reflect")
-addPrefixToProjectName("core")
-addPrefixToProjectName("api")
-addPrefixToProjectName("api:support")
-addPrefixToProjectName("api:easymock")
-addPrefixToProjectName("api:mockito-common")
-addPrefixToProjectName("api:mockito")
-addPrefixToProjectName("api:mockito2")
+addPrefixToProject(rootProject)
 
-def addPrefixToProjectName(projectName){
-    def project = project(":$projectName")
-    project.name = project.parent.name + "-" + project.name;
+def addPrefixToProject(ProjectDescriptor project){
+    if (project.parent){
+        addPrefixToProjectName(project)
+    }
+    project.children.each {subproject ->
+        addPrefixToProject(subproject)
+    }
+}
+
+def addPrefixToProjectName(ProjectDescriptor project){
+    def projectName = project.name
+    if (projectName.contains("classloading-")){
+        def x = "classloading-".length()
+        projectName = projectName.substring(x,projectName.length())
+    }
+    project.name = project.parent.name + "-" + projectName
 }

@@ -81,7 +81,6 @@
     </issueManagement>
     <modules>
         <module>modules</module>
-        <module>tests</module>
         <module>classloading</module>
     </modules>
     <properties>

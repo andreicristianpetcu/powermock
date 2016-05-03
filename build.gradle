@@ -21,8 +21,9 @@ ext {
     xstreamVersion = "1.4.9"
     mockito1Version = "1.10.19"
     mockito2Version = "2.0.42-beta"
+    servletVersion = "2.5"
 
-    ext.gradleScriptDir = "${rootProject.projectDir}/gradle"
+    gradleScriptDir = "${rootProject.projectDir}/gradle"
 }
 
 description = 'PowerMock allows you to unit test code normally regarded as untestable.\n' +
@@ -59,6 +60,8 @@ configure(allprojects) { project ->
 
             }
             dependency("org.hamcrest:hamcrest-core:${hamcrestVersion}")
+            dependency("javax.servlet:servlet-api:${servletVersion}")
+            dependency("com.thoughtworks.xstream:xstream:${xstreamVersion}")
         }
     }
 
@@ -322,5 +325,51 @@ project("powermock-api:powermock-api-mockito2"){
         testCompile("org.assertj:assertj-core")
         testCompile("org.hamcrest:hamcrest-core")
         provided("org.mockito:mockito-core:${mockito2Version}")
+    }
+}
+
+project("powermock-tests:powermock-tests-utils"){
+    description = "Common set of classes to test PowerMock features in mocking framework modules."
+
+    dependencies {
+        compile(project(":powermock-core"))
+        compile("javax.servlet:servlet-api")
+    }
+}
+
+project(":powermock-classloading:powermock-classloading-base"){
+    description = "Utilities for loading and executing classes."
+
+    dependencies {
+        compile(project(":powermock-api:powermock-api-support"))
+        compile(project(":powermock-reflect"))
+        compile(project(":powermock-core"))
+        testCompile("junit:junit")
+        testCompile("org.assertj:assertj-core")
+        testCompile("org.hamcrest:hamcrest-core")
+    }
+}
+
+
+project(":powermock-classloading:powermock-classloading-objenesis"){
+    description = "Performs classloader deep-cloning using Objenesis."
+
+    dependencies {
+        compile(project(":powermock-classloading:powermock-classloading-base"))
+        testCompile("junit:junit")
+        testCompile("org.assertj:assertj-core")
+        testCompile("org.hamcrest:hamcrest-core")
+    }
+}
+
+project(":powermock-classloading:powermock-classloading-xstream"){
+    description = "Performs classloader deep-cloning using X-Stream."
+
+    dependencies {
+        compile(project(":powermock-classloading:powermock-classloading-base"))
+        compile("com.thoughtworks.xstream:xstream")
+        testCompile("junit:junit")
+        testCompile("org.assertj:assertj-core")
+        testCompile("org.hamcrest:hamcrest-core")
     }
 }
