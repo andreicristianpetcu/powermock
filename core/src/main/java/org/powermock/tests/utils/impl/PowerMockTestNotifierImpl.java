@@ -50,9 +50,6 @@ public class PowerMockTestNotifierImpl implements PowerMockTestNotifier {
 		}
 	}
 
-	/**
-	 * {@inheritDoc}
-	 */
 	@Override
 	public void notifyAfterTestMethod(Object testInstance, Method method, Object[] arguments, TestMethodResult testResult) {
 		for (int i = 0; i < powerMockTestListeners.length; i++) {
@@ -65,9 +62,6 @@ public class PowerMockTestNotifierImpl implements PowerMockTestNotifier {
 		}
 	}
 
-	/**
-	 * {@inheritDoc}
-	 */
 	@Override
 	public void notifyAfterTestSuiteEnded(Class<?> testClass, Method[] methods, TestSuiteResult testResult) {
 		for (PowerMockTestListener powerMockTestListener : powerMockTestListeners) {
@@ -79,9 +73,6 @@ public class PowerMockTestNotifierImpl implements PowerMockTestNotifier {
 		}
 	}
 
-	/**
-	 * {@inheritDoc}
-	 */
 	@Override
 	public void notifyBeforeTestMethod(Object testInstance, Method testMethod, Object[] arguments) {
 		MockRepository.putAdditionalState(Keys.CURRENT_TEST_INSTANCE, testInstance);
@@ -97,9 +88,6 @@ public class PowerMockTestNotifierImpl implements PowerMockTestNotifier {
 		}
 	}
 
-	/**
-	 * {@inheritDoc}
-	 */
 	@Override
 	public void notifyBeforeTestSuiteStarted(Class<?> testClass, Method[] testMethods) {
 		for (PowerMockTestListener powerMockTestListener : powerMockTestListeners) {
@@ -111,9 +99,6 @@ public class PowerMockTestNotifierImpl implements PowerMockTestNotifier {
 		}
 	}
 
-	/**
-	 * {@inheritDoc}
-	 */
 	@Override
 	public void notifyAfterTestMethod(boolean successful) {
 		final Object test = MockRepository.getAdditionalState(Keys.CURRENT_TEST_INSTANCE);

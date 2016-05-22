@@ -16,7 +16,7 @@ public interface ProxyFramework {
 	Class<?> getUnproxiedType(Class<?> type);
 
 	/**
-	 * @return <code>true</code> if <tt>type</tt> is a proxy, <code>false</code>
+	 * @return {@code true} if <tt>type</tt> is a proxy, {@code false}
 	 *         otherwise.
 	 */
 	boolean isProxy(Class<?> type);

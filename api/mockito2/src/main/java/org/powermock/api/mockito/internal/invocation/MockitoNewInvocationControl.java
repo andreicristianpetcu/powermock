@@ -72,17 +72,11 @@ public class MockitoNewInvocationControl<T> implements NewInvocationControl<Ongo
 		return substitute;
 	}
 
-	/**
-	 * {@inheritDoc}
-	 */
 	@Override
 	public synchronized Object replay(Object... mocks) {
 		return null;
 	}
 
-	/**
-	 * {@inheritDoc}
-	 */
 	@Override
 	public synchronized Object verify(Object... mocks) {
 		final VerificationMode verificationMode;
@@ -101,9 +95,6 @@ public class MockitoNewInvocationControl<T> implements NewInvocationControl<Ongo
 		return null;
 	}
 
-	/**
-	 * {@inheritDoc}
-	 */
 	@SuppressWarnings("unchecked")
 	@Override
 	public synchronized Object reset(Object... mocks) {

@@ -192,9 +192,9 @@ public class WhiteBoxTest {
 	}
 
 	/**
-	 * This test actually invokes the <code>finalize</code> method of
-	 * <code>java.lang.Object</code> because we supply no method name and no
-	 * arguments. <code>finalize</code> is thus the first method found and it'll
+	 * This test actually invokes the {@code finalize} method of
+	 * {@code java.lang.Object} because we supply no method name and no
+	 * arguments. {@code finalize} is thus the first method found and it'll
 	 * be executed.
 	 * 
 	 * @throws Exception

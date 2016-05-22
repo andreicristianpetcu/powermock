@@ -24,9 +24,6 @@ import org.powermock.reflect.spi.ProxyFramework;
  */
 public class ProxyFrameworkImpl implements ProxyFramework {
 
-    /**
-     * {@inheritDoc}
-     */
     @Override
     public Class<?> getUnproxiedType(Class<?> type) {
         Class<?> currentType = type;
@@ -41,9 +38,6 @@ public class ProxyFrameworkImpl implements ProxyFramework {
         return currentType;
     }
 
-    /**
-     * {@inheritDoc}
-     */
     @Override
     public boolean isProxy(Class<?> type) {
         if (type == null) {
