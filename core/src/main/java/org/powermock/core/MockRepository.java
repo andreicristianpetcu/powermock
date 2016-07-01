@@ -342,7 +342,13 @@ public class MockRepository {
 	 *         value.
 	 */
 	public static synchronized boolean shouldStubMethod(Method method) {
-		return substituteReturnValues.containsKey(method);
+		boolean shouldStubMethod;
+		if (MockGateway.isJacocoMethod(method)) {
+			shouldStubMethod = false;
+		} else {
+			shouldStubMethod = substituteReturnValues.containsKey(method);
+		}
+		return shouldStubMethod;
 	}
 
 	/**

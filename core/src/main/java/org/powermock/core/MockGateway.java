@@ -105,18 +105,7 @@ public class MockGateway {
             }
         }
 
-        // Fix for Issue http://code.google.com/p/powermock/issues/detail?id=88
-        // For some reason the method call to equals() on final methods is
-        // intercepted and during the further processing in Mockito the same
-        // equals() method is called on the same instance. A StackOverflowError
-        // is the result. The following fix changes this by checking if the
-        // method to be called is a final equals() method. In that case the
-        // original method is called by returning PROCEED.
-        if (    // The following describes the equals method.
-                "equals".equals(method.getName())
-                        && method.getParameterTypes().length == 1
-                        && method.getParameterTypes()[0] == Object.class
-                        && Modifier.isFinal(method.getModifiers())) {
+        if (isEqualsMethod(method) || isJacocoMethod(method)) {
             returnValue = PROCEED;
         } else {
 
@@ -154,6 +143,29 @@ public class MockGateway {
         }
 
         return returnValue;
+    }
+
+    /**
+     * @param method the method to check if it is the equal method
+     *               Fix for Issue http://code.google.com/p/powermock/issues/detail?id=88 . For some reason the method
+     *               call to equals() on final methods is intercepted and during the further processing in Mockito the
+     *               same equals() method is called on the same instance. A StackOverflowError is the result. The
+     *               following fix changes this by checking if the method to be called is a final equals() method. In
+     *               that case the original method is called by returning PROCEED.
+     * @return true if it is the equal method
+     */
+    private static boolean isEqualsMethod(Method method) {
+        return "equals".equals(method.getName())
+                && method.getParameterTypes().length == 1
+                && method.getParameterTypes()[0] == Object.class
+                && Modifier.isFinal(method.getModifiers());
+    }
+
+    public static boolean isJacocoMethod(Method method) {
+        if (method.toString().contains("$jacocoInit")) {
+            return true;
+        }
+        return false;
     }
 
     private static boolean shouldMockMethod(String methodName, Class<?>[] sig) {
