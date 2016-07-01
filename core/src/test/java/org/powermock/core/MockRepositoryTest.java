@@ -1,19 +1,26 @@
 package org.powermock.core;
 
 import org.junit.Test;
+import org.powermock.reflect.Whitebox;
 
-/**
- * Created by andrei on 7/1/16.
- */
+import java.lang.reflect.Method;
+
+import static org.junit.Assert.assertFalse;
+
 public class MockRepositoryTest {
 
     @Test
-    public void givenJacocoInit_whenShouldStubMethod_thenReturnFalse(){
-//        Method method = new Method(MockRepositoryTest.class, "$jacocoInit", null, null, null, 0, 0, null, null, null, null);
-//
-//        boolean shouldStubMethod = MockRepository.shouldStubMethod(method);
-//
-//        assertTrue(shouldStubMethod);
+    public void givenJacocoInit_whenShouldStubMethod_thenReturnFalse() throws NoSuchMethodException {
+        Method method = FakeJacocoModifiedClass.class.getDeclaredMethod("jacocoInit");
+        Whitebox.setInternalState(method, "name", "$jacocoInit");
+
+        boolean shouldStubMethod = MockRepository.shouldStubMethod(method);
+
+        assertFalse(shouldStubMethod);
     }
 
+}
+
+class FakeJacocoModifiedClass {
+    public void jacocoInit(){}
 }
