@@ -1,12 +1,50 @@
 package org.powermock.core.classloader;
 
-import java.util.Collection;
-import java.util.Collections;
+import java.util.HashSet;
+import java.util.Set;
+import java.util.Vector;
 
 public class ClasspathClassFinder {
 
-    public static Collection<Class> getAllClassesFromClasspath(){
-        return Collections.emptyList();
+    public static Set<Class> getAllClassesFromClasspath() throws NoSuchFieldException, IllegalAccessException {
+        ClassLoader currentThreadClassLoader = Thread.currentThread().getContextClassLoader();
+
+        return getClassesFromClassLoader(currentThreadClassLoader);
     }
+
+    private static Set<Class> getClassesFromClassLoader(ClassLoader cleasLoaderToSearchFrom) throws NoSuchFieldException, IllegalAccessException {
+        Set<Class> foundClasses = new HashSet<Class>();
+        while (cleasLoaderToSearchFrom != null) {
+            Vector<Class> classesVector = getClassesVector(cleasLoaderToSearchFrom);
+            for (Class foundClass:classesVector) {
+                foundClasses.add(foundClass);
+            }
+            cleasLoaderToSearchFrom = cleasLoaderToSearchFrom.getParent();
+        }
+        return foundClasses;
+    }
+
+    private static Vector<Class> getClassesVector(ClassLoader classLoaderToGetIteratorFrom)
+            throws NoSuchFieldException, SecurityException,
+            IllegalArgumentException, IllegalAccessException {
+        Class superclassClassLoader = getSuperclassClassLoader(classLoaderToGetIteratorFrom);
+        return getClassesField(classLoaderToGetIteratorFrom, superclassClassLoader);
+    }
+
+    private static Vector getClassesField(ClassLoader classLoaderToGetIteratorFrom, Class superclassClassLoader) throws NoSuchFieldException, IllegalAccessException {
+        java.lang.reflect.Field classLoaderClassesField = superclassClassLoader
+                .getDeclaredField("classes");
+        classLoaderClassesField.setAccessible(true);
+        return (Vector) classLoaderClassesField.get(classLoaderToGetIteratorFrom);
+    }
+
+    private static Class getSuperclassClassLoader(ClassLoader classLoaderToGetIteratorFrom) {
+        Class classloaderClass = classLoaderToGetIteratorFrom.getClass();
+        while (classloaderClass != ClassLoader.class) {
+            classloaderClass = classloaderClass.getSuperclass();
+        }
+        return classloaderClass;
+    }
+
 
 }

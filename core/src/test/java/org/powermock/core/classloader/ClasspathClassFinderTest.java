@@ -1,27 +1,28 @@
 package org.powermock.core.classloader;
 
-import org.assertj.core.api.FileAssert;
+import org.assertj.core.util.BigDecimalComparator;
 import org.junit.Test;
 
-import java.util.ArrayList;
+import java.util.Collection;
 
-import static org.junit.Assert.*;
+import static org.junit.Assert.assertTrue;
 
 public class ClasspathClassFinderTest {
 
     @Test
-    public void whenGetAllClassesFromClasspath_thenJDKClassIsReturned() {
-        assertTrue(ClasspathClassFinder.getAllClassesFromClasspath().contains(ArrayList.class));
+    public void whenGetAllClassesFromClasspath_thenLibraryClassIsReturned() throws NoSuchFieldException, IllegalAccessException {
+        new BigDecimalComparator();
+
+        Collection<Class> allClassesFromClasspath = ClasspathClassFinder.getAllClassesFromClasspath();
+        assertTrue(allClassesFromClasspath.contains(BigDecimalComparator.class));
     }
 
     @Test
-    public void whenGetAllClassesFromClasspath_thenLibraryClassIsReturned() {
-        assertTrue(ClasspathClassFinder.getAllClassesFromClasspath().contains(FileAssert.class));
-    }
+    public void whenGetAllClassesFromClasspath_thenPowermockClassIsReturned() throws NoSuchFieldException, IllegalAccessException {
+        new HardToTransform();
 
-    @Test
-    public void whenGetAllClassesFromClasspath_thenPowermockClassIsReturned() {
-        assertTrue(ClasspathClassFinder.getAllClassesFromClasspath().contains(HardToTransform.class));
+        Collection<Class> allClassesFromClasspath = ClasspathClassFinder.getAllClassesFromClasspath();
+        assertTrue(allClassesFromClasspath.contains(HardToTransform.class));
     }
 
 }
