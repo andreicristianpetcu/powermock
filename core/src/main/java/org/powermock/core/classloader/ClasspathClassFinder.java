@@ -12,6 +12,20 @@ public class ClasspathClassFinder {
         return getClassesFromClassLoader(currentThreadClassLoader);
     }
 
+    public static Set<Class> getAllClassesFromClasspathImplementing(final Class interfaceThatIsImplemented) throws NoSuchFieldException, IllegalAccessException {
+        Set<Class> allClassesFromClasspath = getAllClassesFromClasspath();
+        Set<Class> classesImplementingTheInterface = new HashSet<Class>();
+
+        for(Class classThatMightBeAssignable:allClassesFromClasspath){
+            boolean implementsTheInterface = interfaceThatIsImplemented.isAssignableFrom(classThatMightBeAssignable);
+            if(implementsTheInterface){
+                classesImplementingTheInterface.add(classThatMightBeAssignable);
+            }
+        }
+
+        return classesImplementingTheInterface;
+    }
+
     private static Set<Class> getClassesFromClassLoader(ClassLoader cleasLoaderToSearchFrom) throws NoSuchFieldException, IllegalAccessException {
         Set<Class> foundClasses = new HashSet<Class>();
         while (cleasLoaderToSearchFrom != null) {
