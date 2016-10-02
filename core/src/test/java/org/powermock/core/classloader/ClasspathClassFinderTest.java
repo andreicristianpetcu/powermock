@@ -5,6 +5,7 @@ import org.junit.Test;
 import org.powermock.filter.JacocoMethodFilters;
 import org.powermock.filter.MockMethodFilters;
 
+import java.lang.reflect.Method;
 import java.util.Collection;
 
 import static org.junit.Assert.assertTrue;
@@ -30,7 +31,7 @@ public class ClasspathClassFinderTest {
     @Test
     public void whenGetAllClassesFromClasspath_thenInterfaceAndImplementationAreReturned() throws NoSuchFieldException, IllegalAccessException {
         new JacocoMethodFilters();
-        new MockMethodFilters(){};
+        new MockMethodFilters(){ public boolean shouldMockMethod(Method method) { return false; } };
 
         Collection<Class> allClassesFromClasspath = ClasspathClassFinder.getAllClassesFromClasspath();
 
