@@ -15,8 +15,10 @@
  */
 package org.powermock.core;
 
+import org.powermock.core.classloader.ClasspathClassFinder;
 import org.powermock.core.spi.MethodInvocationControl;
 import org.powermock.core.spi.NewInvocationControl;
+import org.powermock.filter.MockMethodsFilter;
 import org.powermock.reflect.exceptions.MethodNotFoundException;
 import org.powermock.reflect.internal.TypeUtils;
 import org.powermock.reflect.internal.WhiteboxImpl;
@@ -25,6 +27,8 @@ import java.lang.reflect.Constructor;
 import java.lang.reflect.InvocationHandler;
 import java.lang.reflect.Method;
 import java.lang.reflect.Modifier;
+import java.util.HashSet;
+import java.util.Set;
 
 /**
  * All mock invocations are routed through this gateway. This includes method
@@ -63,6 +67,11 @@ public class MockGateway {
      */
     public static boolean MOCK_ANNOTATION_METHODS = false;
 
+    /**
+     * A collection of MockMethodsFilter that tell whether to skip mocking a method or not.
+     */
+    private static Set<MockMethodsFilter> mockMethodsFilterInstances;
+
     // used for static methods
     @SuppressWarnings("UnusedDeclaration")
     public static Object methodCall(Class<?> type, String methodName, Object[] args, Class<?>[] sig,
@@ -72,7 +81,7 @@ public class MockGateway {
 
     private static Object doMethodCall(Object object, String methodName, Object[] args, Class<?>[] sig,
                                        String returnTypeAsString) throws Throwable {
-        if (!shouldMockMethod(methodName, sig)) {
+        if (!shouldSkipMockingMethod(methodName, sig)) {
             return PROCEED;
         }
         Object returnValue = null;
@@ -112,7 +121,7 @@ public class MockGateway {
             }
         }
 
-        if (isEqualsMethod(method) || isJacocoMethod(method)) {
+        if (isEqualsMethod(method) || shouldSkipMockingMethod(method)) {
             returnValue = PROCEED;
         } else {
 
@@ -168,14 +177,37 @@ public class MockGateway {
                 && Modifier.isFinal(method.getModifiers());
     }
 
-    public static boolean isJacocoMethod(Method method) {
-        if (method.toString().contains("$jacocoInit")) {
-            return true;
+    static boolean shouldSkipMockingMethod(Method method) {
+        Set<MockMethodsFilter> mockMethodsFilters = getMockMethodsFilters();
+
+        for (MockMethodsFilter mockMethodsFilter:mockMethodsFilters){
+            if(mockMethodsFilter.shouldSkipMockingMethod(method)){
+                return true;
+            }
         }
         return false;
     }
 
-    private static boolean shouldMockMethod(String methodName, Class<?>[] sig) {
+    private static Set<MockMethodsFilter> getMockMethodsFilters() {
+        if (mockMethodsFilterInstances == null) {
+            Set<MockMethodsFilter> mockMethodsFilters = new HashSet<MockMethodsFilter>();
+            for (Class clazz : ClasspathClassFinder.getAllClassesFromClasspathImplementing(MockMethodsFilter.class)) {
+                try {
+                    if (!clazz.isInterface()) {
+                        mockMethodsFilters.add((MockMethodsFilter) clazz.newInstance());
+                    }
+                } catch (InstantiationException e) {
+                    throw new IllegalStateException("Cannot instantiate class " + clazz);
+                } catch (IllegalAccessException e) {
+                    throw new IllegalStateException("Cannot access class " + clazz);
+                }
+            }
+            mockMethodsFilterInstances = mockMethodsFilters;
+        }
+        return mockMethodsFilterInstances;
+    }
+
+    private static boolean shouldSkipMockingMethod(String methodName, Class<?>[] sig) {
         if (isJavaStandardMethod(methodName, sig) && !MOCK_STANDARD_METHODS) {
             return false;
         } else if (isGetClassMethod(methodName, sig) && !MOCK_GET_CLASS_METHOD) {

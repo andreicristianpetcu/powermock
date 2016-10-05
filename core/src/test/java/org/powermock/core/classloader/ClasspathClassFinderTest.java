@@ -2,8 +2,8 @@ package org.powermock.core.classloader;
 
 import org.assertj.core.util.BigDecimalComparator;
 import org.junit.Test;
-import org.powermock.filter.JacocoMethodFilters;
-import org.powermock.filter.MockMethodFilters;
+import org.powermock.filter.JacocoMethodsFilter;
+import org.powermock.filter.MockMethodsFilter;
 
 import java.lang.reflect.Method;
 import java.util.Collection;
@@ -30,20 +30,20 @@ public class ClasspathClassFinderTest {
 
     @Test
     public void whenGetAllClassesFromClasspath_thenInterfaceAndImplementationAreReturned() throws NoSuchFieldException, IllegalAccessException {
-        new JacocoMethodFilters();
-        new MockMethodFilters(){ public boolean shouldMockMethod(Method method) { return false; } };
+        new JacocoMethodsFilter();
+        new MockMethodsFilter(){ public boolean shouldSkipMockingMethod(Method method) { return false; } };
 
         Collection<Class> allClassesFromClasspath = ClasspathClassFinder.getAllClassesFromClasspath();
 
-        assertTrue(allClassesFromClasspath.contains(MockMethodFilters.class));
-        assertTrue(allClassesFromClasspath.contains(JacocoMethodFilters.class));
+        assertTrue(allClassesFromClasspath.contains(MockMethodsFilter.class));
+        assertTrue(allClassesFromClasspath.contains(JacocoMethodsFilter.class));
     }
 
     @Test
     public void getAllClassesFromClasspathImplementingMockMethodFilters_thenJacocoMethodFiltersIsReturned() throws NoSuchFieldException, IllegalAccessException {
-        Collection<Class> allClassesFromClasspath = ClasspathClassFinder.getAllClassesFromClasspathImplementing(MockMethodFilters.class);
+        Collection<Class> allClassesFromClasspath = ClasspathClassFinder.getAllClassesFromClasspathImplementing(MockMethodsFilter.class);
 
-        assertTrue(allClassesFromClasspath.contains(JacocoMethodFilters.class));
+        assertTrue(allClassesFromClasspath.contains(JacocoMethodsFilter.class));
     }
 
 }
