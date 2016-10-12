@@ -6,17 +6,26 @@ import java.util.Vector;
 
 public class ClasspathClassFinder {
 
-    public static Set<Class> getAllClassesFromClasspath() {
+    public static Set<Class> getClasspathClassesFromPowerMock() {
+        ClassPathPackageClassScanner classPathPackageClassScanner = new ClassPathPackageClassScanner("org.powermock");
+        return classPathPackageClassScanner.scanClassesInPackage();
+    }
+
+    public static Set<Class> getAllClassesAlreadyLoadedFromClasspath() {
         ClassLoader currentThreadClassLoader = Thread.currentThread().getContextClassLoader();
 
         return getClassesFromClassLoader(currentThreadClassLoader);
     }
 
     public static Set<Class> getAllClassesFromClasspathImplementing(final Class interfaceThatIsImplemented) {
-        Set<Class> allClassesFromClasspath = getAllClassesFromClasspath();
+        Set<Class> allClassesFromClasspath = getClasspathClassesFromPowerMock();
+        Set<Class> powerMockClasses = getAllClassesAlreadyLoadedFromClasspath();
+        Set<Class> classesToScan = new HashSet<Class>();
+        classesToScan.addAll(allClassesFromClasspath);
+        classesToScan.addAll(powerMockClasses);
         Set<Class> classesImplementingTheInterface = new HashSet<Class>();
 
-        for(Class classThatMightBeAssignable:allClassesFromClasspath){
+        for(Class classThatMightBeAssignable:classesToScan){
             boolean implementsTheInterface = interfaceThatIsImplemented.isAssignableFrom(classThatMightBeAssignable);
             if(implementsTheInterface){
                 classesImplementingTheInterface.add(classThatMightBeAssignable);
@@ -66,6 +75,5 @@ public class ClasspathClassFinder {
         }
         return classloaderClass;
     }
-
 
 }
