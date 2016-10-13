@@ -11,12 +11,21 @@ class ClassPathItem {
     public final String fullyQualifiedClassName;
 
     public ClassPathItem(String file, URL classLoaderUrl) {
-        this.file = file;
-        this.classLoaderUrl = classLoaderUrl;
-        this.fullyQualifiedClassName = file.substring(classLoaderUrl.getFile().length(), file.length() - ".class".length()).replaceAll("/", ".");
-        String[] splits = fullyQualifiedClassName.split("[.]");
-        this.classSimpleName = splits[splits.length - 1];
-        this.packageName = fullyQualifiedClassName.substring(0, fullyQualifiedClassName.length() - this.classSimpleName.length() - 1);
+        try {
+            this.file = file;
+            this.classLoaderUrl = classLoaderUrl;
+            this.fullyQualifiedClassName = file.substring(classLoaderUrl.getFile().length(), file.length() - ".class".length()).replaceAll("/", ".");
+            String[] splits = fullyQualifiedClassName.split("[.]");
+            this.classSimpleName = splits[splits.length - 1];
+            int endIndex = fullyQualifiedClassName.length() - this.classSimpleName.length() - 1;
+            if(endIndex>0){
+                this.packageName = fullyQualifiedClassName.substring(0, endIndex);
+            } else {
+                this.packageName = "";
+            }
+        } catch (Exception e) {
+            throw new RuntimeException("Ups file: " + file + " URL:" + classLoaderUrl, e);
+        }
     }
 
     @Override
